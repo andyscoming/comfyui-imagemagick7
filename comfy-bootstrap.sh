@@ -11,24 +11,25 @@ apt install -y \
     libxml2-dev libxslt1-dev zlib1g-dev \
     libgl1 libglib2.0-0
 
-echo "=== Ensuring pip exists ==="
+echo "=== Ensuring pip ==="
 python3 -m ensurepip --upgrade || true
 python3 -m pip install --upgrade pip setuptools wheel
 
-echo "=== Installing standard libraries used by custom nodes ==="
+echo "=== Installing ALL required Python deps ==="
 python3 -m pip install \
+    pillow \
+    requests \
+    tqdm \
     matplotlib \
     toml \
     scikit-image \
     PyWavelets \
-    tqdm \
-    pillow \
-    requests
+    scipy \
+    aiohttp \
+    safetensors \
+    typing_extensions
 
-# Some nodes require SciPy:
-python3 -m pip install scipy || true
-
-echo "=== Installing ComfyUI (if not present) ==="
+echo "=== Installing ComfyUI (if missing) ==="
 if [ ! -d /workspace/ComfyUI ]; then
     git clone https://github.com/comfyanonymous/ComfyUI.git /workspace/ComfyUI
 fi
