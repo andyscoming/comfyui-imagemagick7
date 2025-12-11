@@ -21,46 +21,27 @@ RUN wget https://download.imagemagick.org/ImageMagick/download/ImageMagick.tar.g
     ./configure --with-modules=yes --enable-shared && \
     make -j"$(nproc)" && \
     make install && \
-    ldconfig && \
-    magick --version
+    ldconfig
 
 # -----------------------------------------------------
-# Install ComfyUI + venv + dependencies
+# Install Python venv for ComfyUI
 # -----------------------------------------------------
-WORKDIR /workspace
+RUN python3 -m venv /opt/comfy-venv && \
+    /opt/comfy-venv/bin/pip install --upgrade pip setuptools wheel
 
-# Create ComfyUI directory
-RUN git clone https://github.com/comfyanonymous/ComfyUI.git /workspace/ComfyUI
-
-# Python virtual environment
-RUN python3 -m venv /workspace/ComfyUI/venv && \
-    . /workspace/ComfyUI/venv/bin/activate && \
-    pip install --upgrade pip setuptools wheel
-
-# Install ComfyUI requirements
-RUN . /workspace/ComfyUI/venv/bin/activate && \
-    pip install -r /workspace/ComfyUI/requirements.txt
+# Install Wand (Python bindings for ImageMagick)
+RUN /opt/comfy-venv/bin/pip install Wand
 
 # -----------------------------------------------------
-# Install Wand + optional ImageMagick Python deps
+# Add bootstrap script (KN-style)
 # -----------------------------------------------------
-RUN . /workspace/ComfyUI/venv/bin/activate && \
-    pip install Wand
-
-# -----------------------------------------------------
-# (Optional) Install common ComfyUI custom nodes
-# -----------------------------------------------------
-RUN git clone https://github.com/ltdrdata/ComfyUI-Manager \
-    /workspace/ComfyUI/custom_nodes/ComfyUI-Manager
+COPY comfy-bootstrap.sh /usr/local/bin/comfy-bootstrap.sh
+RUN chmod +x /usr/local/bin/comfy-bootstrap.sh
 
 # -----------------------------------------------------
 # Runtime environment
 # -----------------------------------------------------
 EXPOSE 8188
-
-LABEL runpod.port.8188="ComfyUI"
-
 ENV CLI_ARGS="--listen 0.0.0.0 --port 8188"
 
-CMD ["/bin/bash", "-c", "cd /workspace/ComfyUI && /workspace/ComfyUI/venv/bin/python main.py $CLI_ARGS"]
-
+ENTRYPOINT ["/usr/local/bin/comfy-bootstrap.sh"]
