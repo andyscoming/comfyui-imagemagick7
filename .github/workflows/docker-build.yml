@@ -13,6 +13,15 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    # Free up 10–20GB of disk space so big CUDA images can build
+    - name: Free up space on runner
+      run: |
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /opt/ghc
+        sudo rm -rf /usr/local/.ghcup
+        sudo docker system prune -af
+
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
       with:
@@ -24,5 +33,6 @@ jobs:
       with:
         context: .
         file: ./Dockerfile
+        no-cache: true
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/comfyui-im7:latest
