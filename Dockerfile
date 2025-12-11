@@ -1,8 +1,5 @@
-FROM ghcr.io/runpod/base:gpu-nvidia-cuda12.1.1-ubuntu22.04
+FROM ghcr.io/runpod/base:cuda12.1.1
 
-# ------------------------------
-# System setup
-# ------------------------------
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -30,9 +27,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# ------------------------------
-# Install ImageMagick 7
-# ------------------------------
 WORKDIR /tmp
 
 RUN wget https://download.imagemagick.org/ImageMagick/download/ImageMagick.tar.gz && \
@@ -44,20 +38,10 @@ RUN wget https://download.imagemagick.org/ImageMagick/download/ImageMagick.tar.g
     ldconfig /usr/local/lib && \
     cd / && rm -rf /tmp/ImageMagick*
 
-# ------------------------------
-# Prepare workspace
-# ------------------------------
 WORKDIR /workspace
 RUN mkdir -p /workspace
 
-# ------------------------------
-# Copy your bootstrap script
-# ------------------------------
 COPY comfy-bootstrap.sh /workspace/comfy-bootstrap.sh
 RUN chmod +x /workspace/comfy-bootstrap.sh
 
-# ------------------------------
-# Entrypoint
-# ------------------------------
 CMD ["/bin/bash", "/workspace/comfy-bootstrap.sh"]
-
