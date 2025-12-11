@@ -1,4 +1,4 @@
-FROM ghcr.io/runpod/base:cuda12.1.1
+FROM runpod/pytorch:2.4.0-py3.11-cuda12.4.1-devel-ubuntu22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -45,3 +45,4 @@ COPY comfy-bootstrap.sh /workspace/comfy-bootstrap.sh
 RUN chmod +x /workspace/comfy-bootstrap.sh
 
 CMD ["/bin/bash", "/workspace/comfy-bootstrap.sh"]
+
