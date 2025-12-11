@@ -3,14 +3,10 @@ FROM runpod/pytorch:2.4.0-py3.11-cuda12.4.1-devel-ubuntu22.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    wget \
-    curl \
     build-essential \
-    python3 \
-    python3-pip \
-    python3-venv \
     pkg-config \
+    wget \
+    git \
     libjpeg-dev \
     libpng-dev \
     libtiff-dev \
@@ -24,19 +20,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libfreetype6-dev \
     liblcms2-dev \
     libopenjp2-7-dev \
+    libx11-dev \
+    libxext-dev \
+    libxrender-dev \
+    libxcb1-dev \
+    zlib1g-dev \
+    liblzma-dev \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
+# Build ImageMagick 7
 WORKDIR /tmp
-
-RUN wget https://download.imagemagick.org/ImageMagick/download/ImageMagick.tar.gz && \
-    tar xf ImageMagick.tar.gz && \
-    cd ImageMagick-* && \
-    ./configure --with-modules && \
+RUN wget https://download.imagemagick.org/ImageMagick/download/ImageMagick-7.1.1-39.tar.gz && \
+    tar xf ImageMagick-7.1.1-39.tar.gz && \
+    cd ImageMagick-7.1.1-39 && \
+    ./configure --with-modules --enable-shared --with-quantum-depth=16 && \
     make -j"$(nproc)" && \
     make install && \
-    ldconfig /usr/local/lib && \
-    cd / && rm -rf /tmp/ImageMagick*
+    ldconfig && \
+    cd / && rm -rf /tmp/ImageMagick-7.1.1-39*
 
 WORKDIR /workspace
 RUN mkdir -p /workspace
@@ -45,4 +47,5 @@ COPY comfy-bootstrap.sh /workspace/comfy-bootstrap.sh
 RUN chmod +x /workspace/comfy-bootstrap.sh
 
 CMD ["/bin/bash", "/workspace/comfy-bootstrap.sh"]
+
 
