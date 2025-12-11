@@ -12,6 +12,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libtiff-dev \
     libwebp-dev \
     libde265-dev \
+    libheif-dev \
+    libx265-dev \
     libjemalloc-dev \
     libtool \
     liblqr-1-0-dev \
@@ -47,5 +49,6 @@ COPY comfy-bootstrap.sh /workspace/comfy-bootstrap.sh
 RUN chmod +x /workspace/comfy-bootstrap.sh
 
 CMD ["/bin/bash", "/workspace/comfy-bootstrap.sh"]
+
 
 
