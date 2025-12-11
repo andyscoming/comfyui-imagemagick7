@@ -31,7 +31,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # ------------------------------
-# Install ImageMagick 7 (from source)
+# Install ImageMagick 7
 # ------------------------------
 WORKDIR /tmp
 
@@ -45,19 +45,18 @@ RUN wget https://download.imagemagick.org/ImageMagick/download/ImageMagick.tar.g
     cd / && rm -rf /tmp/ImageMagick*
 
 # ------------------------------
-# Create workspace and environment
+# Prepare workspace
 # ------------------------------
 WORKDIR /workspace
 RUN mkdir -p /workspace
 
 # ------------------------------
-# Copy user install script
+# Copy your bootstrap script
 # ------------------------------
-COPY install_script.sh /workspace/install_script.sh
-RUN chmod +x /workspace/install_script.sh
+COPY comfy-bootstrap.sh /workspace/comfy-bootstrap.sh
+RUN chmod +x /workspace/comfy-bootstrap.sh
 
 # ------------------------------
 # Entrypoint
 # ------------------------------
-# Start KD services + run your script
-CMD ["/bin/bash", "/workspace/install_script.sh"]
+CMD ["/bin/bash", "/workspace/comfy-bootstrap.sh"]
