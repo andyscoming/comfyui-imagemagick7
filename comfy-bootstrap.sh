@@ -85,6 +85,12 @@ pip install \
     pywavelets
 
 ### ─────────────────────────────────────────────
+### 5-B. INSTALL MODEL DOWNLOADER (your request)
+### ─────────────────────────────────────────────
+echo "→ Installing comfyui-model-downloader..."
+git -C /workspace/ComfyUI/custom_nodes clone https://github.com/dsigmabcn/comfyui-model-downloader.git || true
+
+### ─────────────────────────────────────────────
 ### 6. LAUNCH COMFYUI
 ### ─────────────────────────────────────────────
 echo "→ Launching ComfyUI..."
