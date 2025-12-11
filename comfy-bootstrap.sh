@@ -15,13 +15,20 @@ echo "=== Ensuring pip exists ==="
 python3 -m ensurepip --upgrade || true
 python3 -m pip install --upgrade pip setuptools wheel
 
-echo "=== Installing packages required by custom nodes ==="
-python3 -m pip install matplotlib toml scikit-image PyWavelets
+echo "=== Installing standard libraries used by custom nodes ==="
+python3 -m pip install \
+    matplotlib \
+    toml \
+    scikit-image \
+    PyWavelets \
+    tqdm \
+    pillow \
+    requests
 
 # Some nodes require SciPy:
-python3 -m pip install scipy || true   # ignore failure if no wheels
+python3 -m pip install scipy || true
 
-echo "=== Installing ComfyUI (if not already present) ==="
+echo "=== Installing ComfyUI (if not present) ==="
 if [ ! -d /workspace/ComfyUI ]; then
     git clone https://github.com/comfyanonymous/ComfyUI.git /workspace/ComfyUI
 fi
@@ -41,6 +48,6 @@ fi
 echo "=== Fixing permissions ==="
 chmod -R 777 /workspace/ComfyUI
 
-echo "=== Startup complete — launching ComfyUI ==="
+echo "=== Starting ComfyUI ==="
 cd /workspace/ComfyUI
 python3 main.py --listen --port 8188
