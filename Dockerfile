@@ -8,7 +8,8 @@ RUN apt update -y && apt install -y \
     libjpeg-dev libpng-dev libtiff-dev libwebp-dev \
     libfreetype6-dev libfontconfig1-dev \
     libx11-dev libxt-dev libxml2-dev \
-    libzip-dev libfftw3-dev libltdl-dev
+    libzip-dev libfftw3-dev libltdl-dev \
+    && apt clean
 
 # -----------------------------------------------------
 # Install ImageMagick 7 from source
@@ -24,13 +25,19 @@ RUN wget https://download.imagemagick.org/ImageMagick/download/ImageMagick.tar.g
     ldconfig
 
 # -----------------------------------------------------
-# Install Python venv for ComfyUI
+# Python venv for ComfyUI
 # -----------------------------------------------------
 RUN python3 -m venv /opt/comfy-venv && \
     /opt/comfy-venv/bin/pip install --upgrade pip setuptools wheel
 
-# Install Wand (Python bindings for ImageMagick)
+# Install Wand inside venv
 RUN /opt/comfy-venv/bin/pip install Wand
+
+# -----------------------------------------------------
+# Install JupyterLab (system-wide)
+# -----------------------------------------------------
+RUN pip install --upgrade pip && \
+    pip install jupyterlab
 
 # -----------------------------------------------------
 # Add bootstrap script (KN-style)
@@ -41,7 +48,13 @@ RUN chmod +x /usr/local/bin/comfy-bootstrap.sh
 # -----------------------------------------------------
 # Runtime environment
 # -----------------------------------------------------
-EXPOSE 8188
+EXPOSE 8188   # ComfyUI
+EXPOSE 8888   # JupyterLab
+
+# Default ComfyUI args
 ENV CLI_ARGS="--listen 0.0.0.0 --port 8188"
+
+# JupyterLab default args
+ENV JUPYTER_ARGS="--ip=0.0.0.0 --port=8888 --no-browser --NotebookApp.token='' --NotebookApp.password=''"
 
 ENTRYPOINT ["/usr/local/bin/comfy-bootstrap.sh"]
