@@ -58,6 +58,9 @@ RUN git clone https://github.com/ltdrdata/ComfyUI-Manager \
 # -----------------------------------------------------
 EXPOSE 8188
 
+LABEL runpod.port.8188="ComfyUI"
+
 ENV CLI_ARGS="--listen 0.0.0.0 --port 8188"
 
 CMD ["/bin/bash", "-c", "cd /workspace/ComfyUI && /workspace/ComfyUI/venv/bin/python main.py $CLI_ARGS"]
+
