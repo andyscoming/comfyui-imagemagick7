@@ -1,100 +1,35 @@
 #!/bin/bash
-set -e
 
-echo "=== Persistent ComfyUI Bootstrap Starting ==="
+# -- Installation Script ---
+# This script handles the full installation of ComfyUI,
+# and comfyui-model-downloader
 
-### ─────────────────────────────────────────────
-### PATHS (Persistent!)
-### ─────────────────────────────────────────────
-COMFY_DIR="/workspace/ComfyUI"
-VENV_DIR="/workspace/comfy-venv"
-CUSTOM_DIR="$COMFY_DIR/custom_nodes"
+# Change to the /workspace directory to ensure all files are downloaded correctly.
+cd /workspace
 
+# Download and install ComfyUI using the ComfyUI-Manager script.
+echo "Installing ComfyUI and ComfyUI Manager..."
+wget https://github.com/ltdrdata/ComfyUI-Manager/raw/main/scripts/install-comfyui-venv-linux.sh -O install-comfyui-venv-linux.sh
+chmod +x install-comfyui-venv-linux.sh
+./install-comfyui-venv-linux.sh
 
-### ─────────────────────────────────────────────
-### 1. CREATE VENV IN /workspace (PERSISTENT)
-### ─────────────────────────────────────────────
-if [ ! -d "$VENV_DIR" ]; then
-    echo "→ Creating persistent virtual environment at $VENV_DIR"
-    python3 -m venv "$VENV_DIR"
-fi
+# Add the --listen flag to the run_gpu.sh script for network access.
+echo "Configuring ComfyUI for network access..."
+sed -i "$ s/$/ --listen /" /workspace/run_gpu.sh
+chmod +x /workspace/run_gpu.sh
 
-# Activate venv
-. "$VENV_DIR/bin/activate"
+# Installing comfyui-model-downloader nodes.
+echo "clone comfyui-model-downloader"
+git -C /workspace/ComfyUI/custom_nodes clone https://github.com/dsigmabcn/comfyui-model-downloader.git
 
-python3 -m pip install --upgrade pip setuptools wheel
+# Installing ComfyUI-RunpodDirect.
+echo "clone ComfyUI-RunpodDirect"
+git -C /workspace/ComfyUI/custom_nodes clone https://github.com/MadiatorLabs/ComfyUI-RunpodDirect.git
 
+# Clean up the installation scripts.
+echo "Cleaning up..."
+rm install_script.sh run_cpu.sh install-comfyui-venv-linux.sh
 
-### ─────────────────────────────────────────────
-### 2. SYSTEM PACKAGES (Container-only, fast)
-### ─────────────────────────────────────────────
-apt update
-apt install -y git build-essential libgl1 ffmpeg python3-dev
-
-
-### ─────────────────────────────────────────────
-### 3. INSTALL OR UPDATE COMFYUI
-### ─────────────────────────────────────────────
-if [ ! -d "$COMFY_DIR" ]; then
-    echo "→ Cloning ComfyUI into /workspace"
-    git clone https://github.com/comfyanonymous/ComfyUI.git "$COMFY_DIR"
-else
-    echo "→ Updating ComfyUI"
-    cd "$COMFY_DIR"
-    git pull --rebase || true
-fi
-
-echo "→ Installing ComfyUI dependencies"
-pip install -r "$COMFY_DIR/requirements.txt"
-
-
-### ─────────────────────────────────────────────
-### 4. INSTALL COMFYUI MANAGER + DEPS
-### ─────────────────────────────────────────────
-MANAGER_DIR="$CUSTOM_DIR/ComfyUI-Manager"
-
-if [ ! -d "$MANAGER_DIR" ]; then
-    echo "→ Installing ComfyUI Manager"
-    git clone https://github.com/ltdrdata/ComfyUI-Manager.git "$MANAGER_DIR"
-else
-    echo "→ Updating ComfyUI Manager"
-    cd "$MANAGER_DIR"
-    git pull --rebase || true
-fi
-
-echo "→ Installing Manager Python dependencies"
-pip install gitpython aiohttp toml tqdm
-
-
-### ─────────────────────────────────────────────
-### 5. INSTALL EXTRA DEPS FOR CUSTOM NODES (WAS, RES4LYF, etc.)
-### ─────────────────────────────────────────────
-echo "→ Installing common custom node dependencies"
-pip install \
-    opencv-python \
-    matplotlib \
-    safetensors \
-    numba \
-    pywavelets
-
-
-### ─────────────────────────────────────────────
-### 6. AUTO-INSTALL MODEL DOWNLOADER NODE
-### ─────────────────────────────────────────────
-if [ ! -d "$CUSTOM_DIR/comfyui-model-downloader" ]; then
-    echo "→ Installing Model Downloader Node"
-    git -C "$CUSTOM_DIR" clone https://github.com/dsigmabcn/comfyui-model-downloader.git
-else
-    echo "→ Updating Model Downloader Node"
-    cd "$CUSTOM_DIR/comfyui-model-downloader"
-    git pull --rebase || true
-fi
-
-
-### ─────────────────────────────────────────────
-### 7. LAUNCH COMFYUI
-### ─────────────────────────────────────────────
-echo "→ Launching ComfyUI"
-cd "$COMFY_DIR"
-
-exec python main.py --listen --port 8188 --enable-cors-header "*"
+# Start the main Runpod service and the ComfyUI service in the background.
+echo "Starting ComfyUI and Runpod services..."
+(/start.sh & /workspace/run_gpu.sh)
