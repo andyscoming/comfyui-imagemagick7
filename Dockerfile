@@ -33,8 +33,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Build ImageMagick 7
 WORKDIR /tmp
-RUN wget https://download.imagemagick.org/ImageMagick/download/ImageMagick-7.1.1-39.tar.gz && \
-    tar xf ImageMagick-7.1.1-39.tar.gz && \
+RUN wget https://imagemagick.org/archive/releases/ImageMagick-7.1.1-39.tar.xz && \
+    tar -xf ImageMagick-7.1.1-39.tar.xz && \
     cd ImageMagick-7.1.1-39 && \
     ./configure --with-modules --enable-shared --with-quantum-depth=16 && \
     make -j"$(nproc)" && \
@@ -49,6 +49,7 @@ COPY comfy-bootstrap.sh /workspace/comfy-bootstrap.sh
 RUN chmod +x /workspace/comfy-bootstrap.sh
 
 CMD ["/bin/bash", "/workspace/comfy-bootstrap.sh"]
+
 
 
 
