@@ -13,7 +13,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # Free 10–20 GB so CUDA images build
+    # Free 10–20GB so CUDA images build
     - name: Free up space on runner
       run: |
         sudo rm -rf /usr/local/lib/android
@@ -22,7 +22,7 @@ jobs:
         sudo rm -rf /usr/local/.ghcup
         sudo docker system prune -af
 
-    # 🔥 Login to GitHub Container Registry (this is what was missing)
+    # Login to GitHub Container Registry (GHCR)
     - name: Login to GHCR
       uses: docker/login-action@v3
       with:
@@ -30,7 +30,7 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    # (Optional) Keep Docker Hub login if you want to push there too
+    # Optional: Docker Hub login
     - name: Login to Docker Hub
       uses: docker/login-action@v3
       with:
@@ -44,10 +44,6 @@ jobs:
         file: ./Dockerfile
         no-cache: true
         push: true
-        
-        # 🔥 Push to GHCR correctly
         tags: |
           ghcr.io/${{ github.repository_owner }}/comfyui-imagemagick7:latest
-          
-          # OPTIONAL: also push to Docker Hub if you want
           ${{ secrets.DOCKERHUB_USERNAME }}/comfyui-im7:latest
