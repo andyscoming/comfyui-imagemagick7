@@ -1,4 +1,4 @@
-FROM runpod/base:gpu-nvidia-cuda12.1.1-ubuntu22.04
+FROM ghcr.io/runpod/base:gpu-nvidia-cuda12.1.1-ubuntu22.04
 
 # ------------------------------
 # System setup
@@ -60,3 +60,4 @@ RUN chmod +x /workspace/comfy-bootstrap.sh
 # Entrypoint
 # ------------------------------
 CMD ["/bin/bash", "/workspace/comfy-bootstrap.sh"]
+
